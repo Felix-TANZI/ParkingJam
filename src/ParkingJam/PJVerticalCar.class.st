@@ -1,3 +1,6 @@
+"
+PJVerticalCar est une voiture qui monte et descend. Ses cases partent de sa position et s'etendent vers le bas (la ligne 1 est en haut).
+"
 Class {
 	#name : 'PJVerticalCar',
 	#superclass : 'PJCar',

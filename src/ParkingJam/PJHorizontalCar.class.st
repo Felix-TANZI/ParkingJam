@@ -1,3 +1,6 @@
+"
+PJHorizontalCar est une voiture qui va a gauche et a droite. Ses cases partent de sa position et s'etendent vers la droite.
+"
 Class {
 	#name : 'PJHorizontalCar',
 	#superclass : 'PJCar',
