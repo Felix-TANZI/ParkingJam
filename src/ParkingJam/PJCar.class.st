@@ -20,6 +20,20 @@ PJCar class >> named: aCharacter at: aPoint length: anInteger [
    		yourself
 ]
 
+{ #category : 'instance creation' }
+PJCar class >> named: aCharacter cells: someCells [
+   	| carClass |
+   	carClass := (someCells allSatisfy: [ :each | each y = someCells first y ])
+   		ifTrue: [ PJHorizontalCar ]
+   		ifFalse: [ PJVerticalCar ].
+   	^ carClass named: aCharacter at: someCells first length: someCells size
+]
+
+{ #category : 'printing' }
+PJCar >> character [
+   	^ name
+]
+
 { #category : 'accessing' }
 PJCar >> frontCellTowards: aDirection [
    	| offset |
