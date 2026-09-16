@@ -1,6 +1,7 @@
 "
 PJParkingTest teste le parking (affichage court, dessin en texte, 
-lecture d'un dessin avec fromString: et aller-retour entre texte et parking).
+lecture d'un dessin avec fromString:, aller-retour entre texte et parking, 
+coups joues, blocages, sortie par le bord, victoire et copie independante).
 "
 Class {
 	#name : 'PJParkingTest',
@@ -73,6 +74,59 @@ PJParkingTest >> testFromStringRoundTrip [
    	parking := PJParking fromString: (String cr join: lines).
    	self assert: parking printString equals: 'a PJParking 6x5 (4 cars)'.
    	self assert: parking asciiString lines equals: lines
+]
+
+{ #category : 'tests' }
+PJParkingTest >> testIsSolvedWhenLastCarExits [
+   	| parking |
+   	parking := PJParking fromString: (String cr join: #('.#' 'A.' 'A.')).
+   	self deny: parking isSolved.
+   	self assert: (parking play: (PJMove car: $A direction: #down)) equals: #exited.
+   	self assert: parking isSolved
+]
+
+{ #category : 'tests' }
+PJParkingTest >> testPlayBlockedByBollard [
+   	| parking |
+   	parking := PJParking fromString: (String cr join: #('A...' 'A...' '#...')).
+   	self assert: (parking play: (PJMove car: $A direction: #down)) equals: #blocked.
+   	self assert: parking asciiString lines equals: #('A...' 'A...' '#...')
+]
+
+{ #category : 'tests' }
+PJParkingTest >> testPlayBlockedByCar [
+   	| parking |
+   	parking := PJParking fromString: (String cr join: #('AAB.' '..B.')).
+   	self assert: (parking play: (PJMove car: $A direction: #right)) equals: #blocked.
+   	self assert: parking asciiString lines equals: #('AAB.' '..B.')
+]
+
+{ #category : 'tests' }
+PJParkingTest >> testPlayCarExitsWhenFrontIsOnEdge [
+   	| parking |
+   	parking := PJParking fromString: (String cr join: #('..AA' '.B..' '.B..')).
+   	self assert: (parking play: (PJMove car: $A direction: #right)) equals: #exited.
+   	self assert: parking printString equals: 'a PJParking 4x3 (1 cars)'.
+   	self assert: parking asciiString lines equals: #('....' '.B..' '.B..')
+]
+
+{ #category : 'tests' }
+PJParkingTest >> testPlayWrongAxisIsBlocked [
+   	| parking |
+   	parking := PJParking fromString: (String cr join: #('....' '.AA.' '....')).
+   	self assert: (parking play: (PJMove car: $A direction: #up)) equals: #blocked.
+   	self assert: parking asciiString lines equals: #('....' '.AA.' '....')
+]
+
+{ #category : 'tests' }
+PJParkingTest >> testPlayingOnACopyDoesNotChangeOriginal [
+   	| original copy |
+   	original := PJParking fromString: (String cr join: #('AA..' '...B' '...B')).
+   	copy := original copy.
+   	copy play: (PJMove car: $A direction: #right).
+   	copy play: (PJMove car: $B direction: #down).
+   	self assert: original asciiString lines equals: #('AA..' '...B' '...B').
+   	self assert: copy asciiString lines equals: #('.AA.' '....' '....')
 ]
 
 { #category : 'tests' }

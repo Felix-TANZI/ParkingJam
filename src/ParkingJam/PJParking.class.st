@@ -1,9 +1,9 @@
 "
-PJParking est la grille du jeu. 
-Il connait sa largeur, sa hauteur, ses voitures et ses plots. 
-Il sait se dessiner en texte avec asciiString, une ligne par rangee (point pour une case vide, diese pour un plot, lettre pour une voiture). 
-Ses messages principaux sont (width, height, addCar:, addBollard:, asciiString). 
-Un parking se cree vide avec width:height: ou a partir d'un dessin avec fromString:.
+PJParking est la grille du jeu. Il connait sa largeur, sa hauteur, 
+ses voitures et ses plots. Il sait se dessiner en texte avec asciiString, une ligne par rangee (point pour une case vide, diese pour un plot, lettre pour une voiture). 
+Il joue les coups avec play: qui repond moved si la voiture avance, exited si elle sort par le bord et blocked si le coup est impossible (mauvais axe ou case occupee). 
+La partie est gagnee quand il ne reste plus de voiture (isSolved). Une copie du parking a ses propres voitures, ce qui permet d'essayer des coups sans modifier l'original. 
+Ses messages principaux sont (width, height, addCar:, addBollard:, asciiString, play:, isSolved). Un parking se cree vide avec width:height: ou a partir d'un dessin avec fromString:.
 "
 Class {
 	#name : 'PJParking',
@@ -52,6 +52,11 @@ PJParking >> asciiString [
    			stream cr ] ]
 ]
 
+{ #category : 'accessing' }
+PJParking >> carNamed: aCharacter [
+   	^ cars detect: [ :each | each name = aCharacter ]
+]
+
 { #category : 'printing' }
 PJParking >> characterAt: aPoint [
    	^ self elements
@@ -70,11 +75,47 @@ PJParking >> height [
 	^ height
 ]
 
+{ #category : 'testing' }
+PJParking >> includes: aPoint [
+   	^ (aPoint x between: 1 and: width) and: [ aPoint y between: 1 and: height ]
+]
+
 { #category : 'initialization' }
 PJParking >> initialize [
    	super initialize.
    	cars := OrderedCollection new.
    	bollards := OrderedCollection new
+]
+
+{ #category : 'testing' }
+PJParking >> isFreeAt: aPoint [
+   	^ self elements noneSatisfy: [ :each | each cells includes: aPoint ]
+]
+
+{ #category : 'testing' }
+PJParking >> isSolved [
+   	^ cars isEmpty
+]
+
+{ #category : 'playing' }
+PJParking >> play: aMove [
+   	| car target |
+   	car := self carNamed: aMove carName.
+   	(car canMoveTowards: aMove direction) ifFalse: [ ^ #blocked ].
+   	target := car frontCellTowards: aMove direction.
+   	(self includes: target) ifFalse: [
+   		self removeCar: car.
+   		^ #exited ].
+   	(self isFreeAt: target) ifFalse: [ ^ #blocked ].
+   	car moveTowards: aMove direction.
+   	^ #moved
+]
+
+{ #category : 'copying' }
+PJParking >> postCopy [
+   	super postCopy.
+   	cars := cars collect: [ :each | each copy ].
+   	bollards := bollards copy
 ]
 
 { #category : 'printing' }
@@ -101,6 +142,11 @@ PJParking >> readLines: someLines [
    				(carCells at: character ifAbsentPut: [ OrderedCollection new ]) add: x @ y ] ] ].
    	carCells keysAndValuesDo: [ :name :cells |
    		self addCar: (PJCar named: name cells: cells) ]
+]
+
+{ #category : 'removing' }
+PJParking >> removeCar: aCar [
+   	cars remove: aCar
 ]
 
 { #category : 'initialization' }
