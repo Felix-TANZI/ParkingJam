@@ -70,6 +70,11 @@ PJParking >> elements [
    	^ cars , bollards
 ]
 
+{ #category : 'testing' }
+PJParking >> hasCarNamed: aCharacter [
+   	^ cars anySatisfy: [ :each | each name = aCharacter ]
+]
+
 { #category : 'accessing' }
 PJParking >> height [
 	^ height
