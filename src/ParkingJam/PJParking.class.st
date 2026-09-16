@@ -3,7 +3,7 @@ PJParking est la grille du jeu. Il connait sa largeur, sa hauteur,
 ses voitures et ses plots. Il sait se dessiner en texte avec asciiString, une ligne par rangee (point pour une case vide, diese pour un plot, lettre pour une voiture). 
 Il joue les coups avec play: qui repond moved si la voiture avance, exited si elle sort par le bord et blocked si le coup est impossible (mauvais axe ou case occupee). 
 La partie est gagnee quand il ne reste plus de voiture (isSolved). Une copie du parking a ses propres voitures, ce qui permet d'essayer des coups sans modifier l'original. 
-Ses messages principaux sont (width, height, addCar:, addBollard:, asciiString, play:, isSolved). Un parking se cree vide avec width:height: ou a partir d'un dessin avec fromString:.
+Ses messages principaux sont (width, height, addCar:, addBollard:, asciiString, play:, possibleMoves, isSolved).
 "
 Class {
 	#name : 'PJParking',
@@ -114,6 +114,13 @@ PJParking >> play: aMove [
    	(self isFreeAt: target) ifFalse: [ ^ #blocked ].
    	car moveTowards: aMove direction.
    	^ #moved
+]
+
+{ #category : 'playing' }
+PJParking >> possibleMoves [
+   	^ cars flatCollect: [ :car |
+   		#(#up #down #left #right) collect: [ :direction |
+   			PJMove car: car name direction: direction ] ]
 ]
 
 { #category : 'copying' }
